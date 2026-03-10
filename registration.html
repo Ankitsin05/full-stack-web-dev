@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+
+<body style="font-family:Arial; text-align:center; margin-top:40px;">
+
+<h2>Registration Form</h2>
+
+<form id="form">
+
+<input type="text" id="name" placeholder="Enter Name"><br><br>
+<span id="nameError" style="color:red"></span><br>
+
+<input type="email" id="email" placeholder="Enter Email"><br><br>
+<span id="emailError" style="color:red"></span><br>
+
+<input type="text" id="phone" placeholder="Enter Phone"><br><br>
+<span id="phoneError" style="color:red"></span><br>
+
+<input type="password" id="password" placeholder="Enter Password">
+<button type="button" id="toggle">Show</button>
+<br><br>
+
+<progress id="strength" value="0" max="4"></progress>
+<p id="strengthText"></p>
+
+<button type="submit">Register</button>
+
+</form>
+
+<script>
+
+let form = document.getElementById("form");
+
+let nameInput = document.getElementById("name");
+let emailInput = document.getElementById("email");
+let phoneInput = document.getElementById("phone");
+let passwordInput = document.getElementById("password");
+
+let strength = document.getElementById("strength");
+let strengthText = document.getElementById("strengthText");
+
+
+// NAME VALIDATION
+nameInput.addEventListener("input", function(){
+
+if(nameInput.value.length < 3){
+document.getElementById("nameError").innerText="Name must be at least 3 characters";
+}else{
+document.getElementById("nameError").innerText="";
+}
+
+});
+
+
+// EMAIL VALIDATION
+emailInput.addEventListener("input", function(){
+
+let pattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+if(!emailInput.value.match(pattern)){
+document.getElementById("emailError").innerText="Invalid email";
+}else{
+document.getElementById("emailError").innerText="";
+}
+
+});
+
+
+// PHONE VALIDATION
+phoneInput.addEventListener("input", function(){
+
+if(phoneInput.value.length != 10){
+document.getElementById("phoneError").innerText="Phone must be 10 digits";
+}else{
+document.getElementById("phoneError").innerText="";
+}
+
+});
+
+
+// PASSWORD STRENGTH
+passwordInput.addEventListener("input", function(){
+
+let pass = passwordInput.value;
+let score = 0;
+
+if(pass.length >= 6) score++;
+if(/[A-Z]/.test(pass)) score++;
+if(/[0-9]/.test(pass)) score++;
+if(/[!@#$%^&*]/.test(pass)) score++;
+
+strength.value = score;
+
+let text = ["Weak","Fair","Good","Strong","Very Strong"];
+strengthText.innerText = text[score];
+
+});
+
+
+// SHOW / HIDE PASSWORD
+
+document.getElementById("toggle").addEventListener("click", function(){
+
+if(passwordInput.type === "password"){
+passwordInput.type = "text";
+this.innerText = "Hide";
+}else{
+passwordInput.type = "password";
+this.innerText = "Show";
+}
+
+});
+
+
+// FORM SUBMISSION
+
+form.addEventListener("submit", function(e){
+
+e.preventDefault();
+
+let submission = {
+name: nameInput.value,
+email: emailInput.value,
+phone: phoneInput.value,
+password: passwordInput.value
+};
+
+let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+
+submissions.push(submission);
+
+localStorage.setItem("submissions", JSON.stringify(submissions));
+
+alert("Registration Saved!");
+
+form.reset();
+strength.value=0;
+strengthText.innerText="";
+
+});
+
+</script>
+
+</body>
+</html>
