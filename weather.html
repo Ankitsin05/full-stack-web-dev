@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Dashboard</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background:#f0f4f8;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:40px;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.container{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.card{
+background:white;
+padding:20px;
+width:200px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.emoji{
+font-size:40px;
+}
+
+.spinner{
+border:6px solid #eee;
+border-top:6px solid #3498db;
+border-radius:50%;
+width:40px;
+height:40px;
+animation:spin 1s linear infinite;
+margin-top:30px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+.error{
+color:red;
+margin-top:20px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>🌍 Weather Dashboard</h1>
+
+<div id="loader" class="spinner"></div>
+
+<div class="container" id="weatherContainer"></div>
+
+<div id="error" class="error"></div>
+
+<script>
+
+const cities = [
+{ name:"Delhi", lat:28.61, lon:77.23 },
+{ name:"London", lat:51.50, lon:-0.12 },
+{ name:"Tokyo", lat:35.67, lon:139.65 }
+]
+
+function getWeatherEmoji(code){
+
+if(code === 0) return "☀️"
+if(code <= 3) return "⛅"
+if(code <= 48) return "🌫"
+if(code <= 67) return "🌧"
+if(code <= 77) return "❄️"
+if(code <= 99) return "⛈"
+
+return "🌤"
+}
+
+async function loadWeather(){
+
+try{
+
+const requests = cities.map(city =>
+fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`)
+.then(res => res.json())
+)
+
+const results = await Promise.all(requests)
+
+document.getElementById("loader").style.display="none"
+
+results.forEach((data,index)=>{
+
+const weather = data.current_weather
+
+const card = document.createElement("div")
+card.className="card"
+
+card.innerHTML = `
+<h3>${cities[index].name}</h3>
+<div class="emoji">${getWeatherEmoji(weather.weathercode)}</div>
+<p>🌡 Temp: ${weather.temperature}°C</p>
+<p>💨 Wind: ${weather.windspeed} km/h</p>
+`
+
+document.getElementById("weatherContainer").appendChild(card)
+
+})
+
+}
+
+catch(error){
+
+document.getElementById("loader").style.display="none"
+document.getElementById("error").innerText="Failed to load weather data."
+
+}
+
+}
+
+loadWeather()
+
+</script>
+
+</body>
+</html>
